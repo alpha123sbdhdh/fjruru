@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A message in a chat channel.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "model", "system"] },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "senderName": { "type": "string" },
+        "senderAvatar": { "type": "string" },
+        "senderRole": { "type": "string" }
+      },
+      "required": ["id", "role", "text", "timestamp"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "A user task.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "title", "completed", "createdAt", "userId"]
+    },
+    "Strategy": {
+      "title": "Strategy",
+      "description": "A business strategy.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "authorName": { "type": "string" },
+        "upvotes": { "type": "number" },
+        "downvotes": { "type": "number" },
+        "status": { "type": "string", "enum": ["Active", "Under Review", "Saturated"] }
+      },
+      "required": ["id", "title", "description", "authorName", "upvotes", "downvotes", "status"]
+    },
+    "Bounty": {
+      "title": "Bounty",
+      "description": "A job bounty.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "reward": { "type": "string" },
+        "description": { "type": "string" },
+        "posterName": { "type": "string" },
+        "type": { "type": "string", "enum": ["project", "contract", "commission"] }
+      },
+      "required": ["id", "title", "reward", "description", "posterName", "type"]
+    }
+  },
+  "firestore": {
+    "messages": {
+      "schema": { "$ref": "ChatMessage" },
+      "description": "Collection of chat messages."
+    },
+    "tasks": {
+      "schema": { "$ref": "Task" },
+      "description": "Collection of user tasks."
+    },
+    "strategies": {
+      "schema": { "$ref": "Strategy" },
+      "description": "Collection of strategies."
+    },
+    "bounties": {
+      "schema": { "$ref": "Bounty" },
+      "description": "Collection of bounties."
+    }
+  }
+}

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>THE ARENA | Enter The War</title>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      // Attempt to make window.fetch writable to prevent "Cannot set property fetch" errors from polyfills
+      (function() {
+        try {
+          if (typeof window !== 'undefined') {
+            var _fetch = window.fetch;
+            Object.defineProperty(window, 'fetch', {
+              get: function() { return _fetch; },
+              set: function(v) { 
+                console.warn('Blocked attempt to overwrite window.fetch');
+              },
+              configurable: true
+            });
+          }
+        } catch (e) {
+          console.warn('Failed to patch window.fetch:', e);
+        }
+      })();
+
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Inter"', 'sans-serif'],
+              display: ['"Inter"', 'sans-serif'],
+            },
+            colors: {
+              arena: {
+                gold: '#D4AF37', // Mafia/Cult Gold
+                red: '#FF3B30', 
+                blue: '#0A84FF',
+                dark: '#000000', 
+                obsidian: '#050505',
+              }
+            },
+            animation: {
+              'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards',
+              'slide-in-right': 'slideInRight 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards',
+              'jelly': 'jelly 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
+              'spin-slow': 'spin 12s linear infinite',
+              'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              slideInRight: {
+                '0%': { transform: 'translateX(100%)' },
+                '100%': { transform: 'translateX(0)' },
+              },
+              jelly: {
+                '0%': { transform: 'scale(1)' },
+                '25%': { transform: 'scale(0.9)' },
+                '50%': { transform: 'scale(1.05)' },
+                '75%': { transform: 'scale(0.98)' },
+                '100%': { transform: 'scale(1)' }
+              }
+            },
+            backgroundImage: {
+              'vertical-lines': 'repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 60px)',
+              'obsidian-gradient': 'linear-gradient(180deg, rgba(20,20,20,0.6) 0%, rgba(0,0,0,0.9) 100%)',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html, body {
+        background-color: #000000;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
+        touch-action: pan-y;
+      }
+      
+      /* "Void" Background */
+      .bg-curtain {
+        background-color: #000000;
+        background-image: 
+          radial-gradient(circle at 50% -20%, rgba(40, 40, 60, 0.2), transparent 60%),
+          repeating-linear-gradient(90deg, transparent 0%, transparent 4%, rgba(255, 255, 255, 0.015) 4.5%, transparent 5%);
+      }
+
+      .logo-shine {
+        mask-image: linear-gradient(45deg, #000 25%, rgba(0,0,0,0.2) 50%, #000 75%);
+        -webkit-mask-image: linear-gradient(45deg, #000 25%, rgba(0,0,0,0.2) 50%, #000 75%);
+        mask-size: 800%;
+        -webkit-mask-size: 800%;
+        animation: shine 10s infinite;
+      }
+
+      @keyframes shine {
+        0% { -webkit-mask-position: 0 0; }
+        100% { -webkit-mask-position: 100% 0; }
+      }
+
+      .glass-panel {
+        background: rgba(20, 20, 20, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      
+      .text-gold-glow {
+        text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+      }
+
+      /* Scrollbar Styling */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255,255,255,0.2);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-curtain min-h-screen max-w-[100vw]">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

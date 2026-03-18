@@ -1,0 +1,7 @@
+{
+  "name": "THE ARENA",
+  "description": "The most ruthless, results-driven education platform for men who refuse to stay average. AI-powered war room, E2EE direct messaging, and elite training.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

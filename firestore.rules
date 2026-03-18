@@ -1,0 +1,140 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: messages
+    // Fields:
+    //   - id: string (required)
+    //   - role: string (required, 'user' | 'model' | 'system')
+    //   - text: string (required, size < 1000)
+    //   - timestamp: timestamp (required)
+    //   - senderName: string (optional)
+    //   - senderAvatar: string (optional)
+    //   - senderRole: string (optional)
+    //
+    // Collection: tasks
+    // Fields:
+    //   - id: string (required)
+    //   - title: string (required, size < 100)
+    //   - description: string (optional, size < 500)
+    //   - completed: boolean (required)
+    //   - createdAt: timestamp (required)
+    //   - userId: string (required)
+    //
+    // Collection: strategies
+    // Fields:
+    //   - id: string (required)
+    //   - title: string (required, size < 100)
+    //   - description: string (required, size < 1000)
+    //   - authorName: string (required, size < 50)
+    //   - upvotes: number (required, >= 0)
+    //   - downvotes: number (required, >= 0)
+    //   - status: string (required, 'Active' | 'Under Review' | 'Saturated')
+    //
+    // Collection: bounties
+    // Fields:
+    //   - id: string (required)
+    //   - title: string (required, size < 100)
+    //   - reward: string (required, size < 50)
+    //   - description: string (required, size < 1000)
+    //   - posterName: string (required, size < 50)
+    //   - type: string (required, 'project' | 'contract' | 'commission')
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidMessage(data) {
+      return hasOnlyAllowedFields(['id', 'role', 'text', 'timestamp', 'senderName', 'senderAvatar', 'senderRole']) &&
+             data.role in ['user', 'model', 'system'] &&
+             data.text is string && data.text.size() > 0 && data.text.size() < 1000 &&
+             data.timestamp is timestamp;
+    }
+
+    function isValidTask(data) {
+      return hasOnlyAllowedFields(['id', 'title', 'description', 'completed', 'createdAt', 'userId']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.completed is bool &&
+             data.createdAt is timestamp &&
+             data.userId is string;
+    }
+
+    function isValidStrategy(data) {
+      return hasOnlyAllowedFields(['id', 'title', 'description', 'authorName', 'upvotes', 'downvotes', 'status']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.description is string && data.description.size() > 0 && data.description.size() < 1000 &&
+             data.authorName is string && data.authorName.size() > 0 && data.authorName.size() < 50 &&
+             data.upvotes is number && data.upvotes >= 0 &&
+             data.downvotes is number && data.downvotes >= 0 &&
+             data.status in ['Active', 'Under Review', 'Saturated'];
+    }
+
+    function isValidBounty(data) {
+      return hasOnlyAllowedFields(['id', 'title', 'reward', 'description', 'posterName', 'type']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.reward is string && data.reward.size() > 0 && data.reward.size() < 50 &&
+             data.description is string && data.description.size() > 0 && data.description.size() < 1000 &&
+             data.posterName is string && data.posterName.size() > 0 && data.posterName.size() < 50 &&
+             data.type in ['project', 'contract', 'commission'];
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+    match /messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidMessage(request.resource.data);
+      allow update: if false; // Messages are immutable
+      allow delete: if false;
+    }
+
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isValidTask(request.resource.data) && isOwner(request.resource.data.userId);
+      allow update: if isAuthenticated() && isOwner(resource.data.userId) && isValidTask(request.resource.data) && areImmutableFieldsUnchanged(['id', 'createdAt', 'userId']);
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    match /strategies/{strategyId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidStrategy(request.resource.data);
+      allow update: if isAuthenticated() && isValidStrategy(request.resource.data) && areImmutableFieldsUnchanged(['id', 'authorName']);
+      allow delete: if false;
+    }
+
+    match /bounties/{bountyId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidBounty(request.resource.data);
+      allow update: if isAuthenticated() && isValidBounty(request.resource.data) && areImmutableFieldsUnchanged(['id', 'posterName']);
+      allow delete: if false;
+    }
+  }
+}
